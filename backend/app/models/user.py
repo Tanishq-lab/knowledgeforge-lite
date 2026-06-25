@@ -4,7 +4,11 @@ from sqlalchemy import Integer, String, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.base import Base
+from sqlalchemy.orm import relationship
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from app.models.document import Document
 
 class User(Base):
     __tablename__ = "users"
@@ -40,3 +44,7 @@ class User(Base):
         DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc)
     )
+    documents: Mapped[list["Document"]] = relationship(
+    back_populates="owner",
+    cascade="all, delete-orphan"
+)
