@@ -17,24 +17,37 @@ class DocumentService:
         file: UploadFile,
         owner_id: int
     ) -> Document:
-        """
-        Uploads a document, saves it to disk,
-        stores its metadata in the database,
-        and returns the created document.
-        """
 
-        # Save the uploaded file
-        file_path = FileStorage.save_file(
-            file=file,
-            user_id=owner_id
-        )
+        if file.content_type != "application/pdf":
+            raise ValueError(
+                "Only PDF files are allowed."
+            )
 
-        # Save metadata in PostgreSQL
-        document = DocumentRepository.create_document(
-            db=db,
-            original_filename=file.filename,
-            file_path=file_path,
-            owner_id=owner_id
-        )
+        file_path = None
 
-        return document
+        try:
+
+            file_path = FileStorage.save_file(
+                file=file,
+                user_id=owner_id
+            )
+
+            document = (
+                DocumentRepository.create_document(
+                    db=db,
+                    original_filename=file.filename,
+                    file_path=file_path,
+                    owner_id=owner_id
+                )
+            )
+
+            return document
+
+        except Exception:
+
+            if file_path:
+                FileStorage.delete_file(
+                    file_path
+                )
+
+            raise

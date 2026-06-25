@@ -13,6 +13,7 @@ from app.models.user import User
 from app.schemas.document import DocumentResponse
 from app.services.document_service import DocumentService
 
+
 router = APIRouter(
     prefix="/documents",
     tags=["Documents"]
@@ -39,8 +40,14 @@ def upload_document(
             owner_id=current_user.id
         )
 
-    except Exception as e:
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail="Internal Server Error"
         )

@@ -10,7 +10,6 @@ class FileStorage:
     Handles all file storage operations.
     """
 
-    # Base directory where uploaded files will be stored
     STORAGE_DIR = Path("storage/uploads")
 
     @staticmethod
@@ -39,27 +38,39 @@ class FileStorage:
         Saves an uploaded file and returns its relative path.
         """
 
-        # Create the user's upload folder
         user_folder = FileStorage.create_user_folder(
             user_id
         )
 
-        # Generate a unique filename
-        file_extension = Path(file.filename).suffix
+        file_extension = Path(
+            file.filename
+        ).suffix
 
         unique_filename = (
             f"{uuid.uuid4()}{file_extension}"
         )
 
-        # Full path where the file will be saved
-        destination = user_folder / unique_filename
+        destination = (
+            user_folder / unique_filename
+        )
 
-        # Copy uploaded file to disk
         with destination.open("wb") as buffer:
             shutil.copyfileobj(
                 file.file,
                 buffer
             )
 
-        # Return relative path for storing in database
         return str(destination)
+
+    @staticmethod
+    def delete_file(
+        file_path: str
+    ) -> None:
+        """
+        Deletes a file if it exists.
+        """
+
+        path = Path(file_path)
+
+        if path.exists():
+            path.unlink()
