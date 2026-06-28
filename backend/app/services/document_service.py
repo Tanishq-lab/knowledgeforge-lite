@@ -4,6 +4,7 @@ from fastapi import UploadFile
 from app.models.document import Document
 from app.repositories.document_repository import DocumentRepository
 from app.storage.file_storage import FileStorage
+from app.services.indexing_service import IndexingService
 
 
 class DocumentService:
@@ -18,6 +19,7 @@ class DocumentService:
         owner_id: int
     ) -> Document:
 
+        # Validate file type
         if file.content_type != "application/pdf":
             raise ValueError(
                 "Only PDF files are allowed."
@@ -26,12 +28,13 @@ class DocumentService:
         file_path = None
 
         try:
-
+            # Save the uploaded PDF
             file_path = FileStorage.save_file(
                 file=file,
                 user_id=owner_id
             )
 
+            # Create database record
             document = (
                 DocumentRepository.create_document(
                     db=db,
@@ -41,10 +44,18 @@ class DocumentService:
                 )
             )
 
+            # Index the document
+            IndexingService.index_document(
+                document_id=document.id,
+                owner_id=owner_id,
+                file_path=file_path
+            )
+
             return document
 
         except Exception:
 
+            # Delete uploaded file if something fails
             if file_path:
                 FileStorage.delete_file(
                     file_path
