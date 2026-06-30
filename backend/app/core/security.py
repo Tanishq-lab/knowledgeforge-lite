@@ -1,11 +1,10 @@
-from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from jose import jwt
-
-from app.core.config import settings
 
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from jose import jwt
+from passlib.context import CryptContext
+
+from app.core.config import settings
 
 # Configure password hashing algorithm
 pwd_context = CryptContext(
@@ -18,7 +17,6 @@ def hash_password(password: str) -> str:
     """
     Generate a secure hash for storing passwords.
     """
-
     return pwd_context.hash(password)
 
 
@@ -29,15 +27,18 @@ def verify_password(
     """
     Compare user input password with stored hash.
     """
-
     return pwd_context.verify(
         plain_password,
         hashed_password
     )
 
+
 def create_access_token(
     data: dict
 ) -> str:
+    """
+    Create a JWT access token.
+    """
 
     to_encode = data.copy()
 
@@ -48,7 +49,9 @@ def create_access_token(
     )
 
     to_encode.update(
-        {"exp": expire}
+        {
+            "exp": expire
+        }
     )
 
     return jwt.encode(
@@ -57,13 +60,18 @@ def create_access_token(
         algorithm=settings.ALGORITHM
     )
 
+
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
 )
 
+
 def decode_access_token(
     token: str
 ) -> dict:
+    """
+    Decode and validate JWT token.
+    """
 
     return jwt.decode(
         token,

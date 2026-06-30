@@ -21,9 +21,6 @@ class ChromaService:
         embeddings: list[list[float]],
         metadatas: list[dict]
     ) -> None:
-        """
-        Stores chunks inside ChromaDB.
-        """
 
         ChromaService.collection.add(
             ids=ids,
@@ -34,26 +31,52 @@ class ChromaService:
 
     @staticmethod
     def count() -> int:
-        """
-        Returns total number of stored chunks.
-        """
 
         return ChromaService.collection.count()
+
+    @staticmethod
+    def delete_document(
+        document_id: int
+    ) -> None:
+        """
+        Deletes all chunks belonging
+        to a document.
+        """
+
+        ChromaService.collection.delete(
+            where={
+                "document_id": document_id
+            }
+        )
 
     @staticmethod
     def search(
         embedding: list[float],
         owner_id: int,
+        document_ids: list[int] | None = None,
         k: int = 3
     ):
-        """
-        Searches for the most similar chunks.
-        """
+
+        if document_ids:
+            where = {
+                "$and": [
+                    {
+                        "owner_id": owner_id
+                    },
+                    {
+                        "document_id": {
+                            "$in": document_ids
+                        }
+                    }
+                ]
+            }
+        else:
+            where = {
+                "owner_id": owner_id
+            }
 
         return ChromaService.collection.query(
             query_embeddings=[embedding],
             n_results=k,
-            where={
-                "owner_id": owner_id
-            }
+            where=where
         )

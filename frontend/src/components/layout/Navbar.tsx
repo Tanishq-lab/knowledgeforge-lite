@@ -1,13 +1,24 @@
-import {
-  Bell,
-  Search,
-  User
-} from "lucide-react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ChevronDown, LogOut, Settings } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 function Navbar() {
+  const [open, setOpen] = useState(false);
+
+  const { token, logout } = useAuth();
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
+
+  const email =
+    token ? "Logged In User" : "Guest";
+
   return (
     <header className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-8 py-5">
 
@@ -21,34 +32,42 @@ function Navbar() {
         </p>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="relative">
 
-        <div className="relative">
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2 transition hover:border-slate-500"
+        >
+          <span className="text-sm">
+            {email}
+          </span>
 
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <ChevronDown className="h-4 w-4" />
+        </button>
 
-          <Input
-            placeholder="Search..."
-            className="w-64 pl-10"
-          />
+        {open && (
+          <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
 
-        </div>
+            <Link
+              to="/settings"
+              className="flex items-center gap-2 px-4 py-3 hover:bg-slate-800"
+            >
+              <Settings className="h-4 w-4" />
 
-        <Button>
+              Settings
+            </Link>
 
-          Upload PDF
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2 px-4 py-3 text-left text-red-400 hover:bg-slate-800"
+            >
+              <LogOut className="h-4 w-4" />
 
-        </Button>
+              Logout
+            </button>
 
-        <Bell
-          className="h-5 w-5 cursor-pointer text-slate-400"
-        />
-
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600">
-
-          <User className="h-5 w-5 text-white" />
-
-        </div>
+          </div>
+        )}
 
       </div>
 

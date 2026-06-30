@@ -8,10 +8,22 @@ class ChatRequest(BaseModel):
 
     question: str
 
+    document_ids: list[int] | None = None
+
+
+class ChatSource(BaseModel):
+    """
+    Source document.
+    """
+
+    document_name: str
+    document_id: int
+
 
 class ChatResponse(BaseModel):
     """
-    Response schema for chat.
+    Response schema.
     """
 
     answer: str
+    sources: list[ChatSource]

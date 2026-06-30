@@ -27,3 +27,50 @@ class DocumentRepository:
         db.refresh(document)
 
         return document
+
+    @staticmethod
+    def get_user_documents(
+        db: Session,
+        owner_id: int
+    ) -> list[Document]:
+        """
+        Returns all documents uploaded by a user.
+        """
+
+        return (
+            db.query(Document)
+            .filter(Document.owner_id == owner_id)
+            .order_by(Document.created_at.desc())
+            .all()
+        )
+
+    @staticmethod
+    def get_document(
+        db: Session,
+        document_id: int,
+        owner_id: int
+    ) -> Document | None:
+        """
+        Returns a single document.
+        """
+
+        return (
+            db.query(Document)
+            .filter(
+                Document.id == document_id,
+                Document.owner_id == owner_id
+            )
+            .first()
+        )
+
+    @staticmethod
+    def delete_document(
+        db: Session,
+        document: Document
+    ) -> None:
+        """
+        Deletes a document from the database.
+        """
+
+        db.delete(document)
+        db.commit()

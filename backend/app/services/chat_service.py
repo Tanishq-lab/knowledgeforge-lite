@@ -10,20 +10,43 @@ class ChatService:
     @staticmethod
     def chat(
         question: str,
-        owner_id: int
-    ) -> str:
-        """
-        Answers a user's question using RAG.
-        """
+        owner_id: int,
+        document_ids: list[int] | None = None
+    ) -> dict:
 
-        chunks = SearchService.search(
+        search_results = SearchService.search(
             query=question,
-            owner_id=owner_id
+            owner_id=owner_id,
+            document_ids=document_ids
         )
+
+        context = [
+            result.text
+            for result in search_results
+        ]
 
         answer = LLMService.generate_answer(
             question=question,
-            context=chunks
+            context=context
         )
 
-        return answer
+        seen = set()
+        sources = []
+
+        for result in search_results:
+
+            if result.document_name not in seen:
+
+                seen.add(result.document_name)
+
+                sources.append(
+                    {
+                        "document_name": result.document_name,
+                        "document_id": result.document_id
+                    }
+                )
+
+        return {
+            "answer": answer,
+            "sources": sources
+        }

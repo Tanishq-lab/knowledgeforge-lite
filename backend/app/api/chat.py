@@ -30,11 +30,13 @@ def chat(
     Chat with uploaded documents.
     """
 
-    answer = ChatService.chat(
+    result = ChatService.chat(
         question=request.question,
-        owner_id=current_user.id
+        owner_id=current_user.id,
+        document_ids=request.document_ids
     )
 
     return ChatResponse(
-        answer=answer
+        answer=result["answer"],
+        sources=result["sources"]
     )

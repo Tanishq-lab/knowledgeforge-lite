@@ -1,6 +1,8 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    DateTime,
     ForeignKey,
     Integer,
     String
@@ -16,27 +18,37 @@ from app.database.base import Base
 if TYPE_CHECKING:
     from app.models.user import User
 
+
 class Document(Base):
     __tablename__ = "documents"
 
     id: Mapped[int] = mapped_column(
-    Integer,
-    primary_key=True,
-    index=True
-)
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
     original_filename: Mapped[str] = mapped_column(
-    String(255),
-    nullable=False
-)
+        String(255),
+        nullable=False
+    )
+
     file_path: Mapped[str] = mapped_column(
-    String(500),
-    nullable=False
-)
+        String(500),
+        nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
     owner_id: Mapped[int] = mapped_column(
-    ForeignKey("users.id"),
-    nullable=False
-)
+        ForeignKey("users.id"),
+        nullable=False
+    )
+
     owner: Mapped["User"] = relationship(
-    back_populates="documents"
-)
-    
+        back_populates="documents"
+    )

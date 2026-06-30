@@ -46,10 +46,11 @@ class DocumentService:
 
             # Index the document
             IndexingService.index_document(
-                document_id=document.id,
-                owner_id=owner_id,
-                file_path=file_path
-            )
+    document_id=document.id,
+    owner_id=owner_id,
+    file_path=file_path,
+    document_name=document.original_filename
+)
 
             return document
 
@@ -62,3 +63,17 @@ class DocumentService:
                 )
 
             raise
+
+    @staticmethod
+    def get_user_documents(
+        db: Session,
+        owner_id: int
+    ) -> list[Document]:
+        """
+        Returns all documents belonging to a user.
+        """
+
+        return DocumentRepository.get_user_documents(
+            db=db,
+            owner_id=owner_id
+        )
