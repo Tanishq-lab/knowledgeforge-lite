@@ -12,16 +12,15 @@ function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    setOpen(false);
     logout();
     navigate("/login", { replace: true });
   };
 
-  const email =
-    token ? "Logged In User" : "Guest";
+  const accountName = token ? "Account" : "Guest";
 
   return (
     <header className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-8 py-5">
-
       <div>
         <h2 className="text-2xl font-bold">
           Welcome Back 👋
@@ -33,44 +32,42 @@ function Navbar() {
       </div>
 
       <div className="relative">
-
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2 transition hover:border-slate-500"
+          className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 transition hover:border-slate-500 hover:bg-slate-800"
         >
-          <span className="text-sm">
-            {email}
+          <span className="text-sm font-medium">
+            {accountName}
           </span>
 
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${
+              open ? "rotate-180" : ""
+            }`}
+          />
         </button>
 
         {open && (
-          <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
-
+          <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
             <Link
               to="/settings"
-              className="flex items-center gap-2 px-4 py-3 hover:bg-slate-800"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 px-4 py-3 transition hover:bg-slate-800"
             >
               <Settings className="h-4 w-4" />
-
               Settings
             </Link>
 
             <button
               onClick={handleLogout}
-              className="flex w-full items-center gap-2 px-4 py-3 text-left text-red-400 hover:bg-slate-800"
+              className="flex w-full items-center gap-2 px-4 py-3 text-left text-red-400 transition hover:bg-slate-800"
             >
               <LogOut className="h-4 w-4" />
-
               Logout
             </button>
-
           </div>
         )}
-
       </div>
-
     </header>
   );
 }

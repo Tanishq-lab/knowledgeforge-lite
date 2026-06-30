@@ -5,6 +5,7 @@ export interface Document {
   original_filename: string;
   file_path: string;
   owner_id: number;
+  created_at: string;
 }
 
 export const DocumentService = {
