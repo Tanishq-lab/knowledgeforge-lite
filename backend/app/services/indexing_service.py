@@ -13,11 +13,11 @@ class IndexingService:
 
     @staticmethod
     def index_document(
-    document_id: int,
-    owner_id: int,
-    file_path: str,
-    document_name: str
-) -> None:
+        document_id: int,
+        owner_id: int,
+        file_path: str,
+        document_name: str
+    ) -> None:
         """
         Processes a document and stores all chunks
         inside ChromaDB.
@@ -58,14 +58,15 @@ class IndexingService:
             )
 
             metadatas.append(
-    {
-        "owner_id": owner_id,
-        "document_id": document_id,
-        "document_name": document_name,
-        "chunk_index": index
-    }
-   )
+                {
+                    "owner_id": owner_id,
+                    "document_id": document_id,
+                    "document_name": document_name,
+                    "chunk_index": index
+                }
+            )
 
+        # Store all chunks at once
         ChromaService.add_chunks(
             ids=ids,
             documents=documents,
