@@ -54,7 +54,7 @@ class ChromaService:
         embedding: list[float],
         owner_id: int,
         document_ids: list[int] | None = None,
-        k: int = 3
+        k: int = 5
     ):
 
         if document_ids:
