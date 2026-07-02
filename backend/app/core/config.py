@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -12,13 +12,20 @@ class Settings(BaseSettings):
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    # AI Settings
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
 
-    GEMINI_API_KEY: str
+    # Optional (keep for future if needed)
+    GEMINI_API_KEY: str | None = None
 
-    class Config:
-        env_file = ".env"
+    # OpenAI-compatible providers
+    LLM_API_KEY: str
+    LLM_BASE_URL: str
+    LLM_MODEL: str
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore"
+    )
 
 
 settings = Settings()

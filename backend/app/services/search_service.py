@@ -13,7 +13,7 @@ class SearchService:
         query: str,
         owner_id: int,
         document_ids: list[int] | None = None,
-        k: int = 3
+        k: int = 6
     ) -> list[SearchResult]:
         """
         Performs semantic search and returns

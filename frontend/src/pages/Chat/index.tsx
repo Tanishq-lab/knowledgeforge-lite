@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 
 import ChatInput from "@/components/chat/ChatInput";
@@ -18,8 +19,23 @@ function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Selected documents
   const [selectedDocuments, setSelectedDocuments] = useState<number[]>([]);
+
+  const [showDocuments, setShowDocuments] =
+    useState(false);
+
+  const messagesEndRef =
+    useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages, loading]);
+
+  const sendSuggestion = (text: string) => {
+    handleSend(text);
+  };
 
   const handleSend = async (
     question: string
@@ -47,15 +63,13 @@ function ChatPage() {
             : selectedDocuments
         );
 
-      const aiMessage: Message = {
-        role: "assistant",
-        content: response.answer,
-        sources: response.sources,
-      };
-
       setMessages((prev) => [
         ...prev,
-        aiMessage,
+        {
+          role: "assistant",
+          content: response.answer,
+          sources: response.sources,
+        },
       ]);
 
     } catch (error) {
@@ -71,53 +85,176 @@ function ChatPage() {
       setLoading(false);
 
     }
+
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
 
-      <h1 className="text-3xl font-bold">
-        KnowledgeForge AI
-      </h1>
+      <div>
 
-      <DocumentSelector
-        selected={selectedDocuments}
-        onChange={setSelectedDocuments}
-      />
+        <h1 className="text-3xl font-bold">
+          KnowledgeForge AI Assistant
+        </h1>
 
-      <div className="flex h-[calc(100vh-18rem)] flex-col">
+        <p className="mt-2 text-slate-400">
+          Ask questions about your uploaded
+          documents.
+        </p>
 
-        <div className="mb-6 flex-1 space-y-4 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950 p-6">
+      </div>
 
-          {messages.length === 0 ? (
+      {/* Collapsible Document Selector */}
 
-            <p className="text-center text-slate-500">
+      <div className="rounded-xl border border-slate-800 bg-slate-900">
 
-              Ask a question about your uploaded documents.
+        <button
+          onClick={() =>
+            setShowDocuments(!showDocuments)
+          }
+          className="flex w-full items-center justify-between p-4"
+        >
+
+          <div>
+
+            <h2 className="font-semibold">
+
+              Documents
+
+            </h2>
+
+            <p className="text-sm text-slate-400">
+
+              {selectedDocuments.length === 0
+                ? "Searching across all uploaded documents"
+                : `${selectedDocuments.length} document(s) selected`}
 
             </p>
 
+          </div>
+
+          {showDocuments ? (
+            <ChevronUp />
+          ) : (
+            <ChevronDown />
+          )}
+
+        </button>
+
+        {showDocuments && (
+
+          <div className="border-t border-slate-800 p-4">
+
+            <DocumentSelector
+              selected={selectedDocuments}
+              onChange={
+                setSelectedDocuments
+              }
+            />
+
+          </div>
+
+        )}
+
+      </div>
+
+      {/* Chat */}
+
+      <div className="flex h-[calc(100vh-14rem)] flex-col">
+
+        <div className="flex-1 overflow-y-auto rounded-2xl border border-slate-800 bg-slate-950 p-6">
+
+          {messages.length === 0 ? (
+
+            <div className="flex h-full flex-col items-center justify-center text-center">
+
+              <h2 className="mb-3 text-3xl font-bold">
+
+                👋 Welcome
+
+              </h2>
+
+              <p className="mb-8 max-w-xl text-slate-400">
+
+                Upload your PDFs and ask
+                questions in natural language.
+
+              </p>
+
+              <div className="grid gap-3 md:grid-cols-2">
+
+                <button
+                  onClick={() =>
+                    sendSuggestion(
+                      "Summarize my uploaded documents."
+                    )
+                  }
+                  className="rounded-xl border border-slate-700 p-4 transition hover:border-blue-500"
+                >
+
+                  💡 Summarize my notes
+
+                </button>
+
+                <button
+                  onClick={() =>
+                    sendSuggestion(
+                      "Explain the important concepts in these documents."
+                    )
+                  }
+                  className="rounded-xl border border-slate-700 p-4 transition hover:border-blue-500"
+                >
+
+                  📚 Explain concepts
+
+                </button>
+
+              </div>
+
+            </div>
+
           ) : (
 
-            messages.map((message, index) => (
+            <>
 
-              <ChatMessage
-                key={index}
-                role={message.role}
-                content={message.content}
-                sources={message.sources}
-              />
+              {messages.map(
+                (message, index) => (
 
-            ))
+                  <ChatMessage
+                    key={index}
+                    role={message.role}
+                    content={message.content}
+                    sources={message.sources}
+                  />
+
+                )
+              )}
+
+              {loading && (
+
+                <ChatMessage
+                  role="assistant"
+                  content="KnowledgeForge is thinking..."
+                />
+
+              )}
+
+              <div ref={messagesEndRef} />
+
+            </>
 
           )}
 
         </div>
 
-        <ChatInput
-          loading={loading}
-          onSend={handleSend}
-        />
+        <div className="mt-4">
+
+          <ChatInput
+            loading={loading}
+            onSend={handleSend}
+          />
+
+        </div>
 
       </div>
 

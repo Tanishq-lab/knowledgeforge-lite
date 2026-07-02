@@ -17,7 +17,8 @@ class ChatService:
         search_results = SearchService.search(
             query=question,
             owner_id=owner_id,
-            document_ids=document_ids
+            document_ids=document_ids,
+            k=6
         )
 
         context = [

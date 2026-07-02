@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FileText, Files } from "lucide-react";
 
 import {
   DocumentService,
@@ -18,23 +19,15 @@ function DocumentSelector({
   const [documents, setDocuments] = useState<Document[]>([]);
 
   useEffect(() => {
-
     loadDocuments();
-
   }, []);
 
   const loadDocuments = async () => {
-
-    const docs =
-      await DocumentService.getDocuments();
-
+    const docs = await DocumentService.getDocuments();
     setDocuments(docs);
-
   };
 
-  const toggleDocument = (
-    id: number
-  ) => {
+  const toggleDocument = (id: number) => {
 
     if (selected.includes(id)) {
 
@@ -57,15 +50,31 @@ function DocumentSelector({
 
   return (
 
-    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+    <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-sm">
 
-      <h2 className="mb-4 font-semibold">
+      <div className="mb-5 flex items-center justify-between">
 
-        Chat With
+        <div className="flex items-center gap-2">
 
-      </h2>
+          <Files className="h-5 w-5 text-blue-400" />
 
-      <label className="mb-3 flex items-center gap-3">
+          <h2 className="font-semibold">
+            Documents
+          </h2>
+
+        </div>
+
+        <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+
+          {documents.length} uploaded
+
+        </span>
+
+      </div>
+
+      {/* All Documents */}
+
+      <label className="mb-4 flex cursor-pointer items-center gap-3 rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 transition hover:border-blue-500">
 
         <input
           type="checkbox"
@@ -73,34 +82,62 @@ function DocumentSelector({
           onChange={() => onChange([])}
         />
 
-        All Documents
+        <span className="font-medium">
+          Search all documents
+        </span>
 
       </label>
 
-      <div className="space-y-2">
+      {/* Document List */}
 
-        {documents.map(doc => (
+      <div className="max-h-44 space-y-2 overflow-y-auto pr-2">
 
-          <label
-            key={doc.id}
-            className="flex items-center gap-3"
-          >
+        {documents.length === 0 ? (
 
-            <input
-              type="checkbox"
-              checked={selected.includes(doc.id)}
-              onChange={() =>
-                toggleDocument(doc.id)
-              }
-            />
+          <p className="text-sm text-slate-500">
 
-            {doc.original_filename}
+            No documents uploaded.
 
-          </label>
+          </p>
 
-        ))}
+        ) : (
+
+          documents.map((doc) => (
+
+            <label
+              key={doc.id}
+              className="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-800 px-3 py-2 transition hover:border-blue-500 hover:bg-slate-950"
+            >
+
+              <input
+                type="checkbox"
+                checked={selected.includes(doc.id)}
+                onChange={() =>
+                  toggleDocument(doc.id)
+                }
+              />
+
+              <FileText className="h-4 w-4 text-blue-400" />
+
+              <span className="truncate text-sm">
+
+                {doc.original_filename}
+
+              </span>
+
+            </label>
+
+          ))
+
+        )}
 
       </div>
+
+      <p className="mt-4 text-xs text-slate-500">
+
+        Tip: Leave everything unchecked to search across all uploaded documents.
+
+      </p>
 
     </div>
 
