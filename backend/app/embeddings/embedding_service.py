@@ -1,15 +1,22 @@
 from sentence_transformers import SentenceTransformer
+
 from app.core.config import settings
+
 
 class EmbeddingService:
     """
-    Handles embedding generation.
+    Handles embedding generation using lazy loading.
     """
 
-    # Load model only once
-    model = SentenceTransformer(
-    settings.EMBEDDING_MODEL
-)
+    _model = None
+
+    @classmethod
+    def get_model(cls):
+        if cls._model is None:
+            cls._model = SentenceTransformer(
+                settings.EMBEDDING_MODEL
+            )
+        return cls._model
 
     @staticmethod
     def generate_embedding(
@@ -19,11 +26,11 @@ class EmbeddingService:
         Generates an embedding vector.
         """
 
-        embedding = (
-            EmbeddingService.model.encode(
-                text,
-                convert_to_numpy=True
-            )
+        model = EmbeddingService.get_model()
+
+        embedding = model.encode(
+            text,
+            convert_to_numpy=True
         )
 
         return embedding.tolist()
